@@ -110,6 +110,18 @@ ok, 现在 `IP:PORT` 上可以同时处理 http 和 ws 请求了。
         'class' => ServiceServer::class,
         'port' => 18308,
     ],
+    'user' => [
+        'class' => ServiceClient::class,
+        'host' => '127.0.0.1',
+        'port' => 18308,
+        'setting' => [
+            'timeout' => 0.5,
+            'connect_timeout' => 1.0,
+            'write_timeout' => 10.0,
+            'read_timeout' => 0.5,
+        ],
+        'packet' => bean('rpcClientPacket'),
+    ],
 ```
 
 ok, 现在通过 `php bin/swoft ws:start` 启动的服务器，就支持上面的全部功能了
