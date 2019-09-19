@@ -86,6 +86,60 @@ class HttpExceptionHandler extends AbstractHttpErrorHandler
 }
 ```
 
+## Validator 验证器异常处理
+
+你的异常类需要继承 `Swoft\Http\Server\Exception\Handler\AbstractHttpErrorHandler`
+
+> 在处理异常后你必须返回一个 `Swoft\Error\Annotation\Mapping\ExceptionHandler` 对象作为对http客户端的响应。
+
+### 使用示例
+
+```php
+<?php declare (strict_types = 1);
+
+namespace App\Exception\Handler;
+
+use Swoft\Error\Annotation\Mapping\ExceptionHandler;
+use Swoft\Http\Message\Response;
+use Swoft\Http\Server\Exception\Handler\AbstractHttpErrorHandler;
+use Throwable;
+
+/**
+ * Class ValidatorExceptionHandler
+ *
+ * @since 2.0
+ *
+ * @ExceptionHandler(\Throwable::class)
+ */
+class ValidatorExceptionHandler extends AbstractHttpErrorHandler
+{
+    /**
+     * @param Throwable $except
+     * @param Response  $response
+     *
+     * @return Response
+     */
+    public function handle(Throwable $except, Response $response): Response
+    {
+        $data = [
+            'code'  => $except->getCode(),
+            'error' => sprintf('(%s) %s', get_class($except), $except->getMessage()),
+            'file'  => sprintf('At %s line %d', $except->getFile(), $except->getLine()),
+            'trace' => $except->getTraceAsString(),
+        ];
+
+        return $response->withData($data);
+    }
+}
+```
+
+## 使用说明
+你可以在handle方法中，对验证器验证失败抛出的异常进行自定义处理，比如返回一段json数据。
+```
+    // 这里的error方法是自定义的。可自行在Helper目录自定义快捷操作方法。
+    return $response->withData(error($except->getMessage(), [], $except->getCode())['data']);
+```
+
 ## RPC 异常处理
 
 你的异常类需要继承 `Swoft\Rpc\Server\Exception\Handler\AbstractRpcServerErrorHandler`
